@@ -4,525 +4,280 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>สุ่มที่นั่ง</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0e0e10;
-    --surface: #18181c;
-    --surface2: #222228;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --text: #f0eff4;
-    --muted: #7b7a88;
-    --accent: #7c6af7;
-    --accent-light: #a89cf8;
-    --accent-bg: rgba(124,106,247,0.12);
-    --accent-border: rgba(124,106,247,0.4);
-    --filled: #2563c4;
-    --filled-bg: rgba(37,99,196,0.12);
-    --filled-border: rgba(37,99,196,0.4);
-    --success: #22c55e;
-    --danger: #ef4444;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
+body {
+  font-family: 'Prompt', sans-serif;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px;
+}
 
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px 80px;
-  }
+h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
 
-  /* noise texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
+.subtitle {
+  font-size: 0.9rem;
+  color: #6e6e73;
+  margin-bottom: 30px;
+}
 
-  .container { width: 100%; max-width: 600px; position: relative; z-index: 1; }
+.panel {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
 
-  header { text-align: center; margin-bottom: 48px; }
-  .badge {
-    display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    color: var(--accent-light);
-    background: var(--accent-bg);
-    border: 1px solid var(--accent-border);
-    border-radius: 20px;
-    padding: 4px 14px;
-    margin-bottom: 16px;
-  }
-  h1 {
-    font-size: clamp(28px, 6vw, 42px);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 8px;
-  }
-  h1 span { color: var(--accent-light); }
-  .subtitle { font-size: 14px; color: var(--muted); }
+.input-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
 
-  /* card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 20px;
-  }
-  .card-title {
-    font-size: 11px;
-    font-family: 'IBM Plex Mono', monospace;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
+input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
 
-  /* input row */
-  .input-row { display: flex; gap: 10px; }
-  input[type=text] {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 15px;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  input[type=text]::placeholder { color: var(--muted); }
-  input[type=text]:focus { border-color: var(--accent); }
+input:focus {
+  outline: none;
+  border-color: #0071e3;
+}
 
-  button {
-    font-family: 'Sarabun', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 10px 18px;
-    transition: all 0.15s;
-  }
-  .btn-accent {
-    background: var(--accent);
-    color: #fff;
-  }
-  .btn-accent:hover { background: #6a58e0; transform: translateY(-1px); }
-  .btn-accent:active { transform: translateY(0); }
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-weight: 600;
+}
 
-  .btn-ghost {
-    background: var(--surface2);
-    color: var(--muted);
-    border: 1px solid var(--border2);
-  }
-  .btn-ghost:hover { border-color: var(--border2); color: var(--text); background: #2a2a32; }
+.btn-add {
+  background: #0071e3;
+  color: white;
+}
 
-  /* name tags */
-  .name-list { display: flex; flex-wrap: wrap; gap: 8px; min-height: 34px; margin-top: 14px; }
-  .name-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    padding: 5px 12px 5px 10px;
-    font-size: 13px;
-    animation: popIn 0.2s ease;
-  }
-  .name-tag.used { opacity: 0.38; }
-  .name-tag-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--accent-light);
-    flex-shrink: 0;
-  }
-  .name-tag.used .name-tag-dot { background: var(--muted); }
-  .name-tag-remove {
-    cursor: pointer; color: var(--muted); font-size: 15px; line-height: 1;
-    margin-left: 2px; transition: color 0.15s;
-  }
-  .name-tag-remove:hover { color: var(--danger); }
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
-  /* classroom */
-  .classroom-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-  }
+.chip {
+  background: #f2f2f2;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
 
-  .board {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 8px 48px;
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-  }
+.status {
+  margin-bottom: 20px;
+  color: #6e6e73;
+}
 
-  .row-group { display: flex; align-items: center; gap: 14px; width: 100%; justify-content: center; }
-  .row-label-text {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    width: 40px;
-    text-align: right;
-  }
-  .seats-row { display: flex; gap: 12px; }
+.car {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 420px;
+}
 
-  .seat {
-    width: 90px;
-    height: 80px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.15s, border-color 0.2s, background 0.2s;
-    position: relative;
-    gap: 4px;
-  }
-  .seat:hover { transform: translateY(-2px); border-color: var(--border2); }
-  .seat-code {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-  }
-  .seat-person {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    text-align: center;
-    padding: 0 6px;
-    line-height: 1.3;
-  }
+.seat {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 10px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  transition: 0.25s cubic-bezier(0.22,1,0.36,1);
+}
 
-  .seat.filled {
-    background: var(--filled-bg);
-    border-color: var(--filled-border);
-  }
-  .seat.filled .seat-person { color: #93b4f0; }
-  .seat.filled .seat-code { color: #5a82c8; }
+.seat.shuffling {
+  animation: shake 0.12s infinite;
+}
 
-  .seat.just-assigned {
-    animation: seatPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+@keyframes shake {
+  0%,100%{transform:translate(0,0)}
+  25%{transform:translate(-2px,1px)}
+  75%{transform:translate(2px,-1px)}
+}
 
-  /* action buttons */
-  .actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-  .btn-main {
-    background: var(--accent);
-    color: #fff;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    padding: 12px 28px;
-    border-radius: var(--radius-sm);
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s;
-    flex: 1;
-  }
-  .btn-main:hover { background: #6a58e0; transform: translateY(-1px); }
-  .btn-main:active { transform: translateY(0); }
+.seat.highlight {
+  background: #0071e3;
+  color: white;
+  transform: scale(1.05);
+}
 
-  /* result message */
-  #result-msg {
-    font-size: 13px;
-    color: var(--success);
-    font-family: 'IBM Plex Mono', monospace;
-    min-height: 18px;
-    text-align: center;
-    margin-top: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  #result-msg.show { opacity: 1; }
+.seat.assigned {
+  background: #34c759;
+  color: white;
+}
 
-  /* counter */
-  .counter {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-  }
-  .counter span { color: var(--text); font-weight: 500; }
+.seat:hover {
+  transform: translateY(-4px);
+}
 
-  footer {
-    margin-top: 48px;
-    text-align: center;
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-  }
+.seat-name {
+  font-weight: 600;
+}
 
-  @keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  @keyframes seatPop {
-    from { transform: scale(0.85); }
-    to { transform: scale(1); }
-  }
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
 
-  /* toast */
-  #toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 24px;
-    padding: 10px 22px;
-    font-size: 14px;
-    z-index: 100;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    white-space: nowrap;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
+.btn-primary {
+  background: #0071e3;
+  color: white;
+}
 
-  @media (max-width: 480px) {
-    .seat { width: 74px; height: 68px; }
-    .seat-person { font-size: 12px; }
-    .row-label-text { display: none; }
-  }
+.btn-secondary {
+  background: #e5e5ea;
+}
+
+.result {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  text-align: center;
+  transition: 0.3s;
+}
+
+.result.show {
+  transform: translate(-50%, -50%) scale(1);
+}
+
 </style>
 </head>
+
 <body>
-<div class="container">
-  <header>
-    <div class="badge">SEAT RANDOMIZER v1.0</div>
-    <h1>สุ่ม<span>ที่นั่ง</span></h1>
-    <p class="subtitle">2 แถว × 3 ที่นั่ง — รวม 6 ที่นั่ง</p>
-  </header>
 
-  <!-- add names -->
-  <div class="card">
-    <div class="card-title">รายชื่อผู้เข้าร่วม</div>
-    <div class="input-row">
-      <input type="text" id="name-input" placeholder="พิมพ์ชื่อ..." maxlength="20" />
-      <button class="btn-accent" onclick="addName()">+ เพิ่ม</button>
-    </div>
-    <div class="name-list" id="name-list"></div>
-    <div class="counter">
-      <span>ผู้เข้าร่วม: <span id="count-names">0</span>/6</span>
-      <span>ที่นั่งว่าง: <span id="count-empty">6</span>/6</span>
-    </div>
+<h1>สุ่มที่นั่ง</h1>
+<p class="subtitle">เพิ่มชื่อแล้วกดสุ่ม</p>
+
+<div class="panel">
+  <div class="input-bar">
+    <input id="nameInput" placeholder="พิมพ์ชื่อ">
+    <button class="btn-add" onclick="addName()">เพิ่ม</button>
   </div>
-
-  <!-- classroom -->
-  <div class="card">
-    <div class="card-title">ผังห้อง</div>
-    <div class="classroom-wrapper">
-      <div class="board">⬛ กระดาน / หน้าห้อง ⬛</div>
-
-      <div class="row-group">
-        <div class="row-label-text">แถว 1</div>
-        <div class="seats-row">
-          <div class="seat" id="seat-1" onclick="manualAssign(1)">
-            <div class="seat-code">A1</div>
-            <div class="seat-person" id="person-1">ว่าง</div>
-          </div>
-          <div class="seat" id="seat-2" onclick="manualAssign(2)">
-            <div class="seat-code">A2</div>
-            <div class="seat-person" id="person-2">ว่าง</div>
-          </div>
-          <div class="seat" id="seat-3" onclick="manualAssign(3)">
-            <div class="seat-code">A3</div>
-            <div class="seat-person" id="person-3">ว่าง</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row-group">
-        <div class="row-label-text">แถว 2</div>
-        <div class="seats-row">
-          <div class="seat" id="seat-4" onclick="manualAssign(4)">
-            <div class="seat-code">B1</div>
-            <div class="seat-person" id="person-4">ว่าง</div>
-          </div>
-          <div class="seat" id="seat-5" onclick="manualAssign(5)">
-            <div class="seat-code">B2</div>
-            <div class="seat-person" id="person-5">ว่าง</div>
-          </div>
-          <div class="seat" id="seat-6" onclick="manualAssign(6)">
-            <div class="seat-code">B3</div>
-            <div class="seat-person" id="person-6">ว่าง</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="actions" style="margin-top: 24px;">
-      <button class="btn-main" onclick="randomize()">🎲 สุ่มที่นั่ง</button>
-      <button class="btn-ghost" onclick="clearSeats()">ล้างที่นั่ง</button>
-      <button class="btn-ghost" onclick="clearAll()">รีเซ็ตทั้งหมด</button>
-    </div>
-    <div id="result-msg"></div>
-  </div>
-
-  <footer>คลิกที่นั่งเพื่อกำหนดชื่อเอง · คลิกที่นั่งที่มีคนเพื่อลบ</footer>
+  <div class="chips" id="chips"></div>
 </div>
 
-<div id="toast"></div>
+<div class="status" id="status">เพิ่มชื่อก่อน</div>
+
+<div class="car" id="seats"></div>
+
+<div class="controls">
+  <button class="btn-primary" onclick="shuffle()">สุ่ม</button>
+  <button class="btn-secondary" onclick="reset()">รีเซ็ต</button>
+</div>
+
+<div class="result" id="result">
+  <h2>เสร็จแล้ว</h2>
+  <p>จัดที่นั่งเรียบร้อย</p>
+</div>
 
 <script>
-  let names = [];
-  let assignments = {}; // { seatId: name }
+let names = [];
+const max = 6;
 
-  const nameInput = document.getElementById('name-input');
-  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') addName(); });
+const seatsEl = document.getElementById('seats');
 
-  function toast(msg, duration = 2200) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
-  }
+for (let i = 0; i < max; i++) {
+  const s = document.createElement('div');
+  s.className = 'seat';
+  s.innerHTML = '<div class="seat-name">ว่าง</div>';
+  seatsEl.appendChild(s);
+}
 
-  function addName() {
-    const n = nameInput.value.trim();
-    if (!n) return;
-    if (names.length >= 6) { toast('⚠️ เพิ่มได้สูงสุด 6 คน'); nameInput.value = ''; return; }
-    if (names.includes(n)) { toast('⚠️ ชื่อนี้มีอยู่แล้ว'); nameInput.value = ''; return; }
-    names.push(n);
-    nameInput.value = '';
-    render();
-  }
+function render() {
+  const chips = document.getElementById('chips');
+  chips.innerHTML = '';
+  names.forEach(n => {
+    const c = document.createElement('div');
+    c.className = 'chip';
+    c.textContent = n;
+    chips.appendChild(c);
+  });
+}
 
-  function removeName(n) {
-    names = names.filter(x => x !== n);
-    Object.keys(assignments).forEach(k => { if (assignments[k] === n) delete assignments[k]; });
-    render();
-  }
-
-  function randomize() {
-    if (names.length === 0) { toast('⚠️ กรุณาเพิ่มชื่อก่อน'); return; }
-    const shuffledNames = [...names].sort(() => Math.random() - 0.5);
-    const seatIds = [1,2,3,4,5,6].sort(() => Math.random() - 0.5).slice(0, shuffledNames.length);
-    assignments = {};
-    shuffledNames.forEach((n, i) => assignments[seatIds[i]] = n);
-    render();
-    animateSeats(seatIds);
-    showResult();
-  }
-
-  function animateSeats(ids) {
-    ids.forEach((id, i) => {
-      setTimeout(() => {
-        const s = document.getElementById('seat-' + id);
-        s.classList.remove('just-assigned');
-        void s.offsetWidth;
-        s.classList.add('just-assigned');
-      }, i * 80);
-    });
-  }
-
-  function showResult() {
-    const msg = document.getElementById('result-msg');
-    msg.textContent = '✓ สุ่มที่นั่งสำเร็จ — ' + Object.keys(assignments).length + ' คน';
-    msg.classList.add('show');
-    setTimeout(() => msg.classList.remove('show'), 3000);
-  }
-
-  function manualAssign(id) {
-    if (assignments[id]) {
-      if (confirm('ลบ "' + assignments[id] + '" ออกจากที่นั่งนี้?')) {
-        delete assignments[id];
-        render();
-      }
-      return;
-    }
-    const avail = names.filter(n => !Object.values(assignments).includes(n));
-    if (avail.length === 0) { toast('ไม่มีชื่อที่เหลือ'); return; }
-    const chosen = prompt('เลือกชื่อ:\n' + avail.map((n,i)=>`${i+1}. ${n}`).join('\n') + '\n\n(พิมพ์ชื่อหรือหมายเลข)');
-    if (!chosen) return;
-    let picked = avail.find(n => n === chosen.trim());
-    if (!picked) {
-      const idx = parseInt(chosen.trim()) - 1;
-      if (idx >= 0 && idx < avail.length) picked = avail[idx];
-    }
-    if (picked) {
-      assignments[id] = picked;
-      const s = document.getElementById('seat-' + id);
-      s.classList.remove('just-assigned');
-      void s.offsetWidth;
-      s.classList.add('just-assigned');
-      render();
-    } else {
-      toast('⚠️ ไม่พบชื่อนี้ในรายการ');
-    }
-  }
-
-  function clearSeats() {
-    assignments = {};
-    render();
-    toast('ล้างที่นั่งแล้ว');
-  }
-
-  function clearAll() {
-    names = [];
-    assignments = {};
-    render();
-    toast('รีเซ็ตทั้งหมดแล้ว');
-  }
-
-  function render() {
-    // names
-    const nl = document.getElementById('name-list');
-    nl.innerHTML = '';
-    names.forEach(n => {
-      const used = Object.values(assignments).includes(n);
-      const tag = document.createElement('div');
-      tag.className = 'name-tag' + (used ? ' used' : '');
-      tag.innerHTML = `<div class="name-tag-dot"></div><span>${n}</span><span class="name-tag-remove" onclick="removeName('${n.replace(/'/g,"\\'")}')">×</span>`;
-      nl.appendChild(tag);
-    });
-
-    // seats
-    for (let i = 1; i <= 6; i++) {
-      const seat = document.getElementById('seat-' + i);
-      const person = document.getElementById('person-' + i);
-      if (assignments[i]) {
-        seat.classList.add('filled');
-        person.textContent = assignments[i];
-      } else {
-        seat.classList.remove('filled');
-        person.textContent = 'ว่าง';
-      }
-    }
-
-    // counters
-    document.getElementById('count-names').textContent = names.length;
-    document.getElementById('count-empty').textContent = 6 - Object.keys(assignments).length;
-  }
-
+function addName() {
+  const input = document.getElementById('nameInput');
+  const val = input.value.trim();
+  if (!val || names.length >= max) return;
+  names.push(val);
+  input.value = '';
   render();
+}
+
+function shuffleArray(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+async function shuffle() {
+  const seats = document.querySelectorAll('.seat');
+  const shuffled = shuffleArray(names);
+
+  seats.forEach(s => {
+    s.classList.remove('assigned','highlight');
+    s.classList.add('shuffling');
+  });
+
+  for (let i = 0; i < 15; i++) {
+    seats.forEach(s => {
+      s.querySelector('.seat-name').textContent = names[Math.floor(Math.random()*names.length)] || '?';
+    });
+    await new Promise(r => setTimeout(r, 80 + i*10));
+  }
+
+  seats.forEach(s => s.classList.remove('shuffling'));
+
+  for (let i = 0; i < seats.length; i++) {
+    const s = seats[i];
+    s.classList.add('highlight');
+
+    await new Promise(r => setTimeout(r, 200));
+
+    s.querySelector('.seat-name').textContent = shuffled[i] || 'ว่าง';
+    s.classList.remove('highlight');
+    s.classList.add('assigned');
+  }
+
+  document.getElementById('result').classList.add('show');
+  setTimeout(() => {
+    document.getElementById('result').classList.remove('show');
+  }, 1500);
+}
+
+function reset() {
+  document.querySelectorAll('.seat').forEach(s => {
+    s.classList.remove('assigned','highlight');
+    s.querySelector('.seat-name').textContent = 'ว่าง';
+  });
+}
 </script>
+
 </body>
 </html>
