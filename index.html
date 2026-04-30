@@ -4,280 +4,668 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>สุ่มที่นั่ง</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Prompt:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg:       #05050f;
+  --surf:     #0b0b1c;
+  --surf2:    #111128;
+  --border:   #1c1c38;
+  --gold:     #ffc72c;
+  --gold-glow:rgba(255,199,44,0.35);
+  --green:    #00e676;
+  --green-glow:rgba(0,230,118,0.3);
+  --red:      #ff3b5c;
+  --text:     #e8e8f8;
+  --muted:    #55557a;
+  --muted2:   #2e2e50;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Prompt', sans-serif;
-  background: #f5f5f7;
-  color: #1d1d1f;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 16px;
+  padding: 44px 16px 80px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Dot grid background */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(rgba(255,199,44,0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none; z-index: 0;
+}
+
+/* Scanlines */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.1) 3px,
+    rgba(0,0,0,0.1) 4px
+  );
+  pointer-events: none; z-index: 9999;
+}
+
+/* ─── Header ─── */
+.site-header {
+  text-align: center;
+  margin-bottom: 36px;
+  position: relative; z-index: 1;
 }
 
 h1 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 6px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow:
+    0 0 12px var(--gold-glow),
+    0 0 40px rgba(255,199,44,0.2);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 8px;
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  color: #6e6e73;
-  margin-bottom: 30px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
+/* ─── Panel ─── */
 .panel {
-  background: white;
-  border-radius: 18px;
-  padding: 20px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  margin-bottom: 30px;
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  width: 100%; max-width: 480px;
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
 }
 
-.input-bar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+.panel-label {
+  font-size: 0.62rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--gold); opacity: 0.7;
+  margin-bottom: 12px;
 }
 
-input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
+.input-bar { display: flex; gap: 10px; margin-bottom: 12px; }
 
-input:focus {
-  outline: none;
-  border-color: #0071e3;
+input[type="text"] {
+  flex: 1; padding: 11px 14px;
+  border-radius: 10px; border: 1.5px solid var(--border);
+  font-family: 'Prompt', sans-serif; font-size: 15px;
+  background: var(--surf2); color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
-  cursor: pointer;
-  font-weight: 600;
+input[type="text"]::placeholder { color: var(--muted); }
+input[type="text"]:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255,199,44,0.1);
 }
 
 .btn-add {
-  background: #0071e3;
-  color: white;
+  background: var(--gold); color: #000;
+  border: none; border-radius: 10px;
+  padding: 11px 18px;
+  font-family: 'Prompt', sans-serif; font-weight: 700; font-size: 14px;
+  cursor: pointer; white-space: nowrap;
+  transition: box-shadow 0.15s, transform 0.1s;
 }
+.btn-add:hover { box-shadow: 0 0 20px var(--gold-glow); }
+.btn-add:active { transform: scale(0.96); }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
+.chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 26px; }
 .chip {
-  background: #f2f2f2;
-  padding: 8px 12px;
-  border-radius: 999px;
-  font-size: 0.9rem;
+  background: var(--surf2); border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 999px;
+  font-size: 0.84rem; display: flex; align-items: center; gap: 7px;
+  color: var(--text);
+}
+.chip-x {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--muted2); color: var(--text);
+  border: none; cursor: pointer; font-size: 9px;
+  line-height: 15px; text-align: center; padding: 0; font-family: monospace;
+  transition: background 0.15s;
+}
+.chip-x:hover { background: var(--red); }
+
+/* ─── Current person ─── */
+.current-person {
+  width: 100%; max-width: 480px;
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px 20px;
+  margin-bottom: 14px;
+  position: relative; z-index: 1;
+  overflow: hidden;
+}
+.current-person::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--gold);
+  box-shadow: 0 0 14px var(--gold);
+  border-radius: 3px 0 0 3px;
+}
+.person-avatar {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: var(--surf2);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 18px var(--gold-glow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 700; color: var(--gold); flex-shrink: 0;
+}
+.person-info { flex: 1; }
+.person-label {
+  font-size: 0.6rem; color: var(--muted);
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em;
+}
+.person-name { font-size: 1.25rem; font-weight: 700; margin-top: 2px; }
+.person-queue { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
+
+/* ─── Spinner ─── */
+.spinner-wrap {
+  width: 100%; max-width: 480px;
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 20px; padding: 36px 24px 28px;
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 14px; position: relative; z-index: 1;
 }
 
-.status {
-  margin-bottom: 20px;
-  color: #6e6e73;
+/* Rotating ring wrapper */
+.drum-halo {
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  position: relative;
+  margin-bottom: 28px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Conic ring — rotates when spinning */
+.drum-halo::before {
+  content: '';
+  position: absolute; inset: -5px;
+  border-radius: 50%;
+  background: conic-gradient(
+    transparent 0deg,
+    var(--gold) 80deg,
+    transparent 160deg,
+    var(--gold) 240deg,
+    transparent 320deg,
+    var(--gold) 360deg
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #fff calc(100% - 6px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #fff calc(100% - 6px));
+}
+.drum-halo.spinning::before {
+  opacity: 1;
+  animation: halo-spin 0.55s linear infinite;
+}
+.drum-halo.landed::before {
+  opacity: 1;
+  background: conic-gradient(var(--green) 0deg, var(--green) 360deg);
+  animation: none;
+}
+
+@keyframes halo-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Inner circle */
+.drum {
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: var(--surf2);
+  border: 3px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0; position: absolute;
+  transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+}
+.drum.spinning {
+  border-color: var(--gold);
+  box-shadow:
+    0 0 0 5px var(--bg),
+    0 0 40px var(--gold-glow),
+    inset 0 0 40px rgba(255,199,44,0.07);
+}
+.drum.landed {
+  border-color: var(--green);
+  box-shadow:
+    0 0 0 5px var(--bg),
+    0 0 50px var(--green-glow),
+    inset 0 0 40px rgba(0,230,118,0.07);
+}
+
+.drum-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 7.5rem; line-height: 1;
+  color: var(--muted2);
+  letter-spacing: 3px;
+  transition: color 0.15s, text-shadow 0.15s;
+  user-select: none;
+}
+.drum.spinning .drum-number {
+  color: var(--gold);
+  text-shadow: 0 0 24px var(--gold), 0 0 60px rgba(255,199,44,0.4);
+}
+.drum.landed .drum-number {
+  color: var(--green);
+  text-shadow: 0 0 24px var(--green), 0 0 60px rgba(0,230,118,0.4);
+}
+
+.drum-label {
+  font-size: 0.62rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--muted); margin-top: 2px;
+}
+.drum.spinning .drum-label { color: var(--gold); opacity: 0.6; }
+.drum.landed .drum-label { color: var(--green); opacity: 0.8; }
+
+/* Spin button */
+.btn-spin {
+  width: 100%;
+  background: var(--gold); color: #000;
+  border: none; border-radius: 14px;
+  padding: 17px;
+  font-family: 'Prompt', sans-serif; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; letter-spacing: 0.04em;
+  transition: box-shadow 0.15s, transform 0.1s;
+  box-shadow: 0 4px 28px var(--gold-glow), 0 2px 6px rgba(0,0,0,0.5);
+  position: relative; overflow: hidden;
+}
+.btn-spin::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+  pointer-events: none;
+}
+.btn-spin:hover:not(:disabled) {
+  box-shadow: 0 6px 36px rgba(255,199,44,0.6), 0 2px 6px rgba(0,0,0,0.5);
+  transform: translateY(-1px);
+}
+.btn-spin:active:not(:disabled) { transform: scale(0.98); }
+.btn-spin:disabled {
+  background: var(--surf2); color: var(--muted);
+  box-shadow: none; cursor: not-allowed;
+}
+
+/* ─── Seat grid ─── */
+.section-label {
+  width: 100%; max-width: 480px;
+  font-size: 0.62rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--muted); margin-bottom: 10px;
+  position: relative; z-index: 1;
 }
 
 .car {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  width: 100%;
-  max-width: 420px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; width: 100%; max-width: 480px;
+  margin-bottom: 22px; position: relative; z-index: 1;
 }
 
 .seat {
-  background: white;
-  border-radius: 16px;
-  padding: 20px 10px;
-  text-align: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-  transition: 0.25s cubic-bezier(0.22,1,0.36,1);
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 10px;
+  text-align: center; min-height: 84px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+              background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.seat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.7rem; line-height: 1;
+  color: var(--muted2); letter-spacing: 2px;
+  transition: color 0.25s, text-shadow 0.25s;
+}
+.seat-name {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--muted);
+  transition: color 0.25s;
 }
 
-.seat.shuffling {
-  animation: shake 0.12s infinite;
+.seat.target {
+  border-color: rgba(255,199,44,0.6);
+  background: rgba(255,199,44,0.05);
+  box-shadow: 0 0 24px rgba(255,199,44,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+  transform: scale(1.07);
 }
-
-@keyframes shake {
-  0%,100%{transform:translate(0,0)}
-  25%{transform:translate(-2px,1px)}
-  75%{transform:translate(2px,-1px)}
-}
-
-.seat.highlight {
-  background: #0071e3;
-  color: white;
-  transform: scale(1.05);
-}
+.seat.target .seat-num { color: var(--gold); text-shadow: 0 0 14px var(--gold); }
+.seat.target .seat-name { color: rgba(255,199,44,0.7); }
 
 .seat.assigned {
-  background: #34c759;
-  color: white;
+  border-color: rgba(0,230,118,0.4);
+  background: rgba(0,230,118,0.05);
+  box-shadow: 0 0 20px rgba(0,230,118,0.15), inset 0 1px 0 rgba(255,255,255,0.03);
+  transform: scale(1.03);
+}
+.seat.assigned .seat-num { color: var(--green); text-shadow: 0 0 10px var(--green); }
+.seat.assigned .seat-name { color: var(--green); font-size: 0.88rem; }
+
+/* ─── Shuffle order button ─── */
+.btn-shuffle-order {
+  background: transparent; color: var(--gold);
+  border: 1px solid rgba(255,199,44,0.3);
+  border-radius: 12px; padding: 11px 22px;
+  font-family: 'Prompt', sans-serif; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  position: relative; z-index: 1;
+}
+.btn-shuffle-order:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(255,199,44,0.2);
+}
+.btn-shuffle-order:active { transform: scale(0.97); }
+.btn-shuffle-order.spinning-order {
+  animation: shake-btn 0.4s ease;
+}
+@keyframes shake-btn {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-2deg); }
+  40% { transform: translateX(4px) rotate(2deg); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
 }
 
-.seat:hover {
-  transform: translateY(-4px);
+.btn-row {
+  display: flex; gap: 10px; align-items: center;
+  position: relative; z-index: 1;
 }
 
-.seat-name {
-  font-weight: 600;
+/* ─── Reset ─── */
+.btn-reset {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 11px 28px;
+  font-family: 'Prompt', sans-serif; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, transform 0.1s;
+  position: relative; z-index: 1;
 }
+.btn-reset:hover { color: var(--red); border-color: rgba(255,59,92,0.5); }
+.btn-reset:active { transform: scale(0.97); }
 
-.controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 25px;
-}
-
-.btn-primary {
-  background: #0071e3;
-  color: white;
-}
-
-.btn-secondary {
-  background: #e5e5ea;
-}
-
-.result {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+/* ─── Done banner ─── */
+.done-banner {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  background: var(--surf);
+  border: 1px solid rgba(255,199,44,0.4);
+  box-shadow: 0 0 60px rgba(255,199,44,0.25), 0 32px 64px rgba(0,0,0,0.7);
+  padding: 40px 52px; border-radius: 24px;
   text-align: center;
-  transition: 0.3s;
+  transition: transform 0.38s cubic-bezier(0.22,1,0.36,1);
+  z-index: 500;
 }
-
-.result.show {
-  transform: translate(-50%, -50%) scale(1);
+.done-banner.show { transform: translate(-50%,-50%) scale(1); }
+.done-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+.done-banner h2 {
+  font-size: 1.6rem; color: var(--gold);
+  text-shadow: 0 0 20px var(--gold-glow);
+  margin-bottom: 6px;
 }
-
+.done-banner p { color: var(--muted); font-size: 0.88rem; }
 </style>
 </head>
-
 <body>
 
-<h1>สุ่มที่นั่ง</h1>
-<p class="subtitle">เพิ่มชื่อแล้วกดสุ่ม</p>
+<div class="site-header">
+  <h1>สุ่มที่นั่ง</h1>
+  <p class="subtitle">เพิ่มชื่อ · กดสุ่มทีละคน</p>
+</div>
 
 <div class="panel">
+  <div class="panel-label">รายชื่อ</div>
   <div class="input-bar">
-    <input id="nameInput" placeholder="พิมพ์ชื่อ">
-    <button class="btn-add" onclick="addName()">เพิ่ม</button>
+    <input type="text" id="nameInput" placeholder="พิมพ์ชื่อ แล้วกด Enter" maxlength="20">
+    <button class="btn-add" onclick="addName()">+ เพิ่ม</button>
   </div>
   <div class="chips" id="chips"></div>
 </div>
 
-<div class="status" id="status">เพิ่มชื่อก่อน</div>
-
-<div class="car" id="seats"></div>
-
-<div class="controls">
-  <button class="btn-primary" onclick="shuffle()">สุ่ม</button>
-  <button class="btn-secondary" onclick="reset()">รีเซ็ต</button>
+<div class="current-person" id="currentPerson" style="display:none">
+  <div class="person-avatar" id="personAvatar">?</div>
+  <div class="person-info">
+    <div class="person-label">กำลังสุ่มให้</div>
+    <div class="person-name" id="personName">—</div>
+    <div class="person-queue" id="personQueue"></div>
+  </div>
 </div>
 
-<div class="result" id="result">
-  <h2>เสร็จแล้ว</h2>
-  <p>จัดที่นั่งเรียบร้อย</p>
+<div class="spinner-wrap" id="spinnerWrap" style="display:none">
+  <div class="drum-halo" id="drumHalo">
+    <div class="drum" id="drum">
+      <div class="drum-number" id="drumNumber">—</div>
+      <div class="drum-label" id="drumLabel">ที่นั่ง</div>
+    </div>
+  </div>
+  <button class="btn-spin" id="spinBtn" onclick="spin()">กดเพื่อสุ่ม</button>
+</div>
+
+<div class="section-label" id="seatLabel" style="display:none">ที่นั่ง</div>
+<div class="car" id="seats" style="display:none"></div>
+
+<div class="btn-row" id="btnRow" style="display:none">
+  <button class="btn-shuffle-order" id="shuffleOrderBtn" onclick="reshuffleOrder()">⇄ สุ่มลำดับใหม่</button>
+  <button class="btn-reset" onclick="resetAll()">รีเซ็ต</button>
+</div>
+
+<div class="done-banner" id="doneBanner">
+  <div class="done-emoji">🏆</div>
+  <h2>เสร็จแล้ว!</h2>
+  <p>จัดที่นั่งครบทุกคนแล้ว</p>
 </div>
 
 <script>
+const MAX = 6;
 let names = [];
-const max = 6;
+let queue = [];
+let seatMap = {};
+let animating = false;
 
 const seatsEl = document.getElementById('seats');
-
-for (let i = 0; i < max; i++) {
+for (let i = 0; i < MAX; i++) {
   const s = document.createElement('div');
   s.className = 'seat';
-  s.innerHTML = '<div class="seat-name">ว่าง</div>';
+  s.id = 'seat-' + i;
+  s.innerHTML = `<div class="seat-num">${i + 1}</div><div class="seat-name">ว่าง</div>`;
   seatsEl.appendChild(s);
 }
 
-function render() {
-  const chips = document.getElementById('chips');
-  chips.innerHTML = '';
-  names.forEach(n => {
-    const c = document.createElement('div');
-    c.className = 'chip';
-    c.textContent = n;
-    chips.appendChild(c);
-  });
-}
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addName();
+});
 
 function addName() {
   const input = document.getElementById('nameInput');
   const val = input.value.trim();
-  if (!val || names.length >= max) return;
+  if (!val || names.length >= MAX) return;
   names.push(val);
   input.value = '';
-  render();
+  input.focus();
+  renderChips();
+  initQueue();
+}
+
+function removeName(idx) {
+  names.splice(idx, 1);
+  renderChips();
+  initQueue();
+}
+
+function renderChips() {
+  const chips = document.getElementById('chips');
+  chips.innerHTML = '';
+  names.forEach((n, i) => {
+    const c = document.createElement('div');
+    c.className = 'chip';
+    c.innerHTML = `${n}<button class="chip-x" onclick="removeName(${i})">✕</button>`;
+    chips.appendChild(c);
+  });
+}
+
+function initQueue() {
+  queue = shuffleArray(names);
+  seatMap = {};
+  document.querySelectorAll('.seat').forEach(s => {
+    s.className = 'seat';
+    s.querySelector('.seat-name').textContent = 'ว่าง';
+  });
+
+  const has = names.length > 0;
+  document.getElementById('currentPerson').style.display = has ? 'flex' : 'none';
+  document.getElementById('spinnerWrap').style.display = has ? 'flex' : 'none';
+  document.getElementById('seatLabel').style.display = has ? 'block' : 'none';
+  document.getElementById('seats').style.display = has ? 'grid' : 'none';
+  document.getElementById('btnRow').style.display = has ? 'flex' : 'none';
+
+  if (has) { showCurrentPerson(); resetDrum(); }
+}
+
+function showCurrentPerson() {
+  if (!queue.length) return;
+  const name = queue[0];
+  document.getElementById('personAvatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('personName').textContent = name;
+  const rem = queue.length - 1;
+  document.getElementById('personQueue').textContent = rem > 0 ? `รออีก ${rem} คน` : 'คนสุดท้าย';
+  document.getElementById('spinBtn').disabled = false;
+  document.getElementById('spinBtn').textContent = 'กดเพื่อสุ่ม';
+}
+
+function resetDrum() {
+  document.getElementById('drum').className = 'drum';
+  document.getElementById('drumHalo').className = 'drum-halo';
+  document.getElementById('drumNumber').textContent = '?';
+  document.getElementById('drumNumber').style.transform = '';
+  document.getElementById('drumLabel').textContent = 'ที่นั่ง';
+}
+
+async function spin() {
+  if (animating || !queue.length) return;
+  animating = true;
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('spinBtn').textContent = 'กำลังสุ่ม...';
+
+  const available = [];
+  for (let i = 0; i < MAX; i++) { if (!seatMap[i]) available.push(i); }
+  if (!available.length) { animating = false; return; }
+
+  const targetSeat = available[Math.floor(Math.random() * available.length)];
+  const targetNum  = targetSeat + 1;
+
+  const drum    = document.getElementById('drum');
+  const halo    = document.getElementById('drumHalo');
+  const numEl   = document.getElementById('drumNumber');
+  const labelEl = document.getElementById('drumLabel');
+
+  drum.className = 'drum spinning';
+  halo.className = 'drum-halo spinning';
+  numEl.textContent = '?';
+
+  const totalSteps = 30;
+  for (let step = 0; step < totalSteps; step++) {
+    const progress = step / totalSteps;
+    const delay    = 38 + Math.pow(progress, 2.8) * 300;
+    const show     = (step >= totalSteps - 4)
+      ? targetNum
+      : available[Math.floor(Math.random() * available.length)] + 1;
+
+    numEl.textContent = show;
+    numEl.style.transform = `scale(${1 + 0.07 * Math.sin(step * 1.3)})`;
+    await wait(delay);
+  }
+
+  numEl.style.transform = 'scale(1)';
+  numEl.textContent = targetNum;
+  drum.className  = 'drum landed';
+  halo.className  = 'drum-halo landed';
+  labelEl.textContent = `ที่นั่งที่ ${targetNum}`;
+
+  const seatEl = document.getElementById('seat-' + targetSeat);
+  seatEl.classList.add('target');
+  await wait(520);
+
+  const name = queue.shift();
+  seatMap[targetSeat] = name;
+  seatEl.classList.remove('target');
+  seatEl.classList.add('assigned');
+  seatEl.querySelector('.seat-name').textContent = name;
+
+  animating = false;
+
+  if (queue.length > 0) {
+    await wait(300);
+    showCurrentPerson();
+    await wait(500);
+    resetDrum();
+  } else {
+    document.getElementById('currentPerson').style.display = 'none';
+    document.getElementById('spinnerWrap').style.display = 'none';
+    await wait(400);
+    const banner = document.getElementById('doneBanner');
+    banner.classList.add('show');
+    setTimeout(() => banner.classList.remove('show'), 2800);
+  }
+}
+
+function reshuffleOrder() {
+  if (animating || !queue.length) return;
+  queue = shuffleArray(queue);
+  const btn = document.getElementById('shuffleOrderBtn');
+  btn.classList.remove('spinning-order');
+  void btn.offsetWidth;
+  btn.classList.add('spinning-order');
+  showCurrentPerson();
+  resetDrum();
+}
+
+function resetAll() {
+  queue = []; seatMap = {}; animating = false;
+  document.querySelectorAll('.seat').forEach(s => {
+    s.className = 'seat';
+    s.querySelector('.seat-name').textContent = 'ว่าง';
+  });
+  document.getElementById('btnRow').style.display = 'none';
+  document.getElementById('doneBanner').classList.remove('show');
+  initQueue();
 }
 
 function shuffleArray(arr) {
-  return [...arr].sort(() => Math.random() - 0.5);
-}
-
-async function shuffle() {
-  const seats = document.querySelectorAll('.seat');
-  const shuffled = shuffleArray(names);
-
-  seats.forEach(s => {
-    s.classList.remove('assigned','highlight');
-    s.classList.add('shuffling');
-  });
-
-  for (let i = 0; i < 15; i++) {
-    seats.forEach(s => {
-      s.querySelector('.seat-name').textContent = names[Math.floor(Math.random()*names.length)] || '?';
-    });
-    await new Promise(r => setTimeout(r, 80 + i*10));
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
-
-  seats.forEach(s => s.classList.remove('shuffling'));
-
-  for (let i = 0; i < seats.length; i++) {
-    const s = seats[i];
-    s.classList.add('highlight');
-
-    await new Promise(r => setTimeout(r, 200));
-
-    s.querySelector('.seat-name').textContent = shuffled[i] || 'ว่าง';
-    s.classList.remove('highlight');
-    s.classList.add('assigned');
-  }
-
-  document.getElementById('result').classList.add('show');
-  setTimeout(() => {
-    document.getElementById('result').classList.remove('show');
-  }, 1500);
+  return a;
 }
 
-function reset() {
-  document.querySelectorAll('.seat').forEach(s => {
-    s.classList.remove('assigned','highlight');
-    s.querySelector('.seat-name').textContent = 'ว่าง';
-  });
-}
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
-
 </body>
 </html>
